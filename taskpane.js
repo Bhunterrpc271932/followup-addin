@@ -2,7 +2,7 @@
  * Follow-Up Reminder add-in
  * Flow: user opens an email -> clicks "Set Follow-Up" ribbon button ->
  * this task pane opens -> user picks a date -> we create a calendar
- * appointment pre-filled with the email subject + a link back to the email.
+ * appointment pre-filled with the email subject + a CLICKABLE link back to the email.
  */
 
 let currentSubject = "";
@@ -21,7 +21,6 @@ Office.onReady(function (info) {
 
   // 2. Build a clickable link back to this exact email (opens in Outlook on the web)
   try {
-    const restHost = Office.context.mailbox.restUrl || "https://outlook.office365.com";
     const encodedId = encodeURIComponent(item.itemId);
     emailLink =
       "https://outlook.office365.com/owa/?ItemID=" +
@@ -56,6 +55,16 @@ function setDateOffset(days) {
   document.getElementById("followDate").value = yyyy + "-" + mm + "-" + dd;
 }
 
+// Escape any special characters in the subject so the HTML body stays valid
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function createReminder() {
   const dateVal = document.getElementById("followDate").value;
   if (!dateVal) {
@@ -74,15 +83,22 @@ function createReminder() {
   const end = new Date(start.getTime());
   end.setMinutes(end.getMinutes() + 30);
 
-  // Body of the calendar event, including the link back to the email
+  const safeSubject = escapeHtml(currentSubject);
+
+  // ---- HTML body so the link is actually CLICKABLE ----
   let body =
-    "Follow up on this email.\n\n" +
-    "Original subject: " + currentSubject + "\n\n";
+    "<div style=\"font-family:Segoe UI,Arial,sans-serif;font-size:14px;\">" +
+    "<p>Follow up on this email.</p>" +
+    "<p><strong>Original subject:</strong> " + safeSubject + "</p>";
+
   if (emailLink) {
-    body += "Open the original email: " + emailLink + "\n";
+    body +=
+      "<p>\uD83D\uDC49 <a href=\"" + emailLink + "\">Open the original email</a></p>";
   } else {
-    body += "(Open Outlook and search the subject line above to find the email.)\n";
+    body +=
+      "<p>(Open Outlook and search the subject line above to find the email.)</p>";
   }
+  body += "</div>";
 
   try {
     // Opens a pre-filled appointment form. User just clicks Save.
@@ -97,8 +113,8 @@ function createReminder() {
     });
     showStatus(
       "ok",
-      "Reminder ready — just click Save on the appointment that opened. It'll sit on your calendar for " +
-        dateVal + " with a link back to this email."
+      "Reminder ready \u2014 just click Save on the appointment that opened. It'll sit on your calendar for " +
+        dateVal + " with a clickable link back to this email."
     );
   } catch (e) {
     showStatus("err", "Couldn't open the reminder. Try again or check the console.");
