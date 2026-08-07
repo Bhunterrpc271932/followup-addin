@@ -3,6 +3,10 @@
  * Flow: user opens an email -> clicks "Set Follow-Up" ribbon button ->
  * this task pane opens -> user picks a date -> we create a calendar
  * appointment pre-filled with the email subject + a CLICKABLE link back to the email.
+ *
+ * LINK NOTE: New Outlook auto-linkifies a bare https:// URL sitting on its own
+ * line far more reliably than a worded "click here" hyperlink. So we output the
+ * raw URL on its own line (primary) AND a worded anchor (fallback).
  */
 
 let currentSubject = "";
@@ -55,7 +59,7 @@ function setDateOffset(days) {
   document.getElementById("followDate").value = yyyy + "-" + mm + "-" + dd;
 }
 
-// Escape any special characters in the subject so the HTML body stays valid
+// Escape special characters so the HTML body stays valid
 function escapeHtml(text) {
   return String(text)
     .replace(/&/g, "&amp;")
@@ -85,15 +89,22 @@ function createReminder() {
 
   const safeSubject = escapeHtml(currentSubject);
 
-  // ---- HTML body so the link is actually CLICKABLE ----
+  // ---- HTML body ----
+  // Primary: bare URL on its own line (new Outlook auto-linkifies this reliably).
+  // Fallback: worded anchor tag underneath.
   let body =
     "<div style=\"font-family:Segoe UI,Arial,sans-serif;font-size:14px;\">" +
     "<p>Follow up on this email.</p>" +
     "<p><strong>Original subject:</strong> " + safeSubject + "</p>";
 
   if (emailLink) {
+    // Bare URL on its own line = single-click friendly in new Outlook
     body +=
-      "<p>\uD83D\uDC49 <a href=\"" + emailLink + "\">Open the original email</a></p>";
+      "<p><strong>Open the original email:</strong></p>" +
+      "<p>" + emailLink + "</p>" +
+      "<p style=\"font-size:12px;color:#6b7c6b;\">" +
+      "(If the link above doesn't open on a single click, use this one: " +
+      "<a href=\"" + emailLink + "\">Open email</a>)</p>";
   } else {
     body +=
       "<p>(Open Outlook and search the subject line above to find the email.)</p>";
@@ -114,7 +125,7 @@ function createReminder() {
     showStatus(
       "ok",
       "Reminder ready \u2014 just click Save on the appointment that opened. It'll sit on your calendar for " +
-        dateVal + " with a clickable link back to this email."
+        dateVal + " with a link back to this email."
     );
   } catch (e) {
     showStatus("err", "Couldn't open the reminder. Try again or check the console.");
