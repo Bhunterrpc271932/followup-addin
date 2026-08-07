@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Set Follow-Up</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 16px;
+      color: #1b1b1b;
+      background: #ffffff;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .header img { width: 28px; height: 28px; }
+    .header h1 { font-size: 16px; margin: 0; color: #2e7d32; }
+    .subject-box {
+      background: #f3f7f3;
+      border: 1px solid #d7e6d7;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      word-break: break-word;
+    }
+    .subject-box .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #6b7c6b;
+      display: block;
+      margin-bottom: 3px;
+    }
+    label.field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #b9c4b9;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .quick-row { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .quick-row button {
+      flex: 1;
+      min-width: 60px;
+      padding: 6px 4px;
+      font-size: 12px;
+      background: #eef3ee;
+      border: 1px solid #cdd9cd;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .quick-row button:hover { background: #dfeadf; }
+    .primary {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      background: #2e7d32;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .primary:hover { background: #276b2a; }
+    .primary:disabled { background: #9db99e; cursor: default; }
+    #status {
+      margin-top: 14px;
+      font-size: 13px;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+    }
+    #status.ok { display: block; background: #e7f4e7; color: #1e5720; }
+    #status.err { display: block; background: #fbeaea; color: #8a1f1f; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="assets/icon-64.png" alt=""/>
+    <h1>Set Follow-Up</h1>
+  </div>
+
+  <div class="subject-box">
+    <span class="label">Email</span>
+    <span id="subjectText">Loading…</span>
+  </div>
+
+  <label class="field-label" for="followDate">Remind me on:</label>
+  <input type="date" id="followDate"/>
+
+  <div class="quick-row">
+    <button type="button" data-days="1">Tomorrow</button>
+    <button type="button" data-days="3">In 3 days</button>
+    <button type="button" data-days="7">Next week</button>
+  </div>
+
+  <button class="primary" id="setBtn">Set Reminder</button>
+
+  <div id="status"></div>
+
+  <script src="taskpane.js"></script>
+</body>
+</html>
